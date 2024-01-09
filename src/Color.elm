@@ -34,6 +34,8 @@ module Color exposing
 
 -}
 
+import Color
+
 
 {-| Represents a color.
 -}
@@ -83,10 +85,30 @@ hsl h s l =
 
 
 toRgba : Color -> { red : Float, green : Float, blue : Float, alpha : Float }
-toRgba (RgbaSpace r g b a) =
-    { red = r, green = g, blue = b, alpha = a }
+toRgba c =
+    case c of
+        RgbaSpace r g b a ->
+            { red = r, green = g, blue = b, alpha = a }
+
+        HslaSpace h s l a ->
+            hslaToRgba h s l a
 
 
 toHsla : Color -> { hue : Float, saturation : Float, lightness : Float, alpha : Float }
-toHsla (HslaSpace h s l a) =
-    { hue = h, saturation = s, lightness = l, alpha = a }
+toHsla c =
+    case c of
+        RgbaSpace r g b a ->
+            rgbaToHsla r g b a
+
+        HslaSpace h s l a ->
+            { hue = h, saturation = s, lightness = l, alpha = a }
+
+
+rgbaToHsla : Float -> Float -> Float -> Float -> { hue : Float, saturation : Float, lightness : Float, alpha : Float }
+rgbaToHsla r g b a =
+    Color.toHsla (Color.rgba r g b a)
+
+
+hslaToRgba : Float -> Float -> Float -> Float -> { red : Float, green : Float, blue : Float, alpha : Float }
+hslaToRgba h s l a =
+    Color.toRgba (Color.hsla h s l a)
