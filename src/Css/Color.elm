@@ -12,43 +12,26 @@ cssFunction funcName args =
         ++ ")"
 
 
+cssValue : Color -> String
+cssValue c =
+    case c of
+        RgbaSpace r g b alpha ->
+            cssFunction "rgba" (List.map String.fromFloat [ r, g, b, alpha ])
+
+        HslaSpace h s l alpha ->
+            cssFunction "hsla" (List.map String.fromFloat [ h, s, l, alpha ])
+
+
 backgroundColor : Color -> Style
 backgroundColor c =
-    let
-        value =
-            case c of
-                RgbaSpace r g b alpha ->
-                    cssFunction "rgba" (List.map String.fromFloat [ r, g, b, alpha ])
-
-                HslaSpace h s l alpha ->
-                    cssFunction "hsla" (List.map String.fromFloat [ h, s, l, alpha ])
-    in
-    property "background-color" value
+    property "background-color" (cssValue c)
 
 
 color : Color -> Style
 color c =
-    let
-        value =
-            case c of
-                RgbaSpace r g b alpha ->
-                    cssFunction "rgba" (List.map String.fromFloat [ r, g, b, alpha ])
-
-                HslaSpace h s l alpha ->
-                    cssFunction "hsla" (List.map String.fromFloat [ h, s, l, alpha ])
-    in
-    property "color" value
+    property "color" (cssValue c)
 
 
 borderColor : Color -> Style
 borderColor c =
-    let
-        value =
-            case c of
-                RgbaSpace r g b alpha ->
-                    cssFunction "rgba" (List.map String.fromFloat [ r, g, b, alpha ])
-
-                HslaSpace h s l alpha ->
-                    cssFunction "hsla" (List.map String.fromFloat [ h, s, l, alpha ])
-    in
-    property "border-color" value
+    property "border-color" (cssValue c)
