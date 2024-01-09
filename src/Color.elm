@@ -1,5 +1,5 @@
 module Color exposing
-    ( Color
+    ( Color(..)
     , rgb255, rgb, rgba, hsl, hsla
     , fromRgba, fromHsla
     , toRgba, toHsla
