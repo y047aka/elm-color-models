@@ -1,6 +1,6 @@
 module Css.Color exposing (backgroundColor, borderColor, color)
 
-import Color exposing (Color(..))
+import ColorModel exposing (Color(..))
 import Css exposing (Style, property)
 
 
