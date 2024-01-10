@@ -116,7 +116,17 @@ hslaToRgba h s l a =
 
 
 toCssString : Color -> String
-toCssString (RgbaSpace r g b a) =
+toCssString c =
+    case c of
+        RgbaSpace r g b a ->
+            rgbaToCssString r g b a
+
+        HslaSpace h s l a ->
+            hslaToCssString h s l a
+
+
+rgbaToCssString : Float -> Float -> Float -> Float -> String
+rgbaToCssString r g b a =
     let
         pct x =
             ((x * 10000) |> round |> toFloat) / 100
@@ -131,6 +141,28 @@ toCssString (RgbaSpace r g b a) =
         , String.fromFloat (pct g)
         , "%,"
         , String.fromFloat (pct b)
+        , "%,"
+        , String.fromFloat (roundTo a)
+        , ")"
+        ]
+
+
+hslaToCssString : Float -> Float -> Float -> Float -> String
+hslaToCssString h s l a =
+    let
+        pct x =
+            ((x * 10000) |> round |> toFloat) / 100
+
+        roundTo x =
+            ((x * 1000) |> round |> toFloat) / 1000
+    in
+    String.concat
+        [ "hsla("
+        , String.fromFloat (roundTo h)
+        , ","
+        , String.fromFloat (pct s)
+        , "%,"
+        , String.fromFloat (pct l)
         , "%,"
         , String.fromFloat (roundTo a)
         , ")"
