@@ -117,53 +117,34 @@ hslaToRgba h s l a =
 
 toCssString : Color -> String
 toCssString c =
+    let
+        pct x =
+            ((x * 10000) |> round |> toFloat) / 100
+
+        roundTo x =
+            ((x * 1000) |> round |> toFloat) / 1000
+    in
     case c of
         RgbaSpace r g b a ->
-            rgbaToCssString r g b a
+            cssFunction "rgba"
+                [ String.fromFloat (pct r) ++ "%"
+                , String.fromFloat (pct g) ++ "%"
+                , String.fromFloat (pct b) ++ "%"
+                , String.fromFloat (roundTo a)
+                ]
 
         HslaSpace h s l a ->
-            hslaToCssString h s l a
+            cssFunction "hsla"
+                [ String.fromFloat (roundTo h)
+                , String.fromFloat (pct s) ++ "%"
+                , String.fromFloat (pct l) ++ "%"
+                , String.fromFloat (roundTo a)
+                ]
 
 
-rgbaToCssString : Float -> Float -> Float -> Float -> String
-rgbaToCssString r g b a =
-    let
-        pct x =
-            ((x * 10000) |> round |> toFloat) / 100
-
-        roundTo x =
-            ((x * 1000) |> round |> toFloat) / 1000
-    in
-    String.concat
-        [ "rgba("
-        , String.fromFloat (pct r)
-        , "%,"
-        , String.fromFloat (pct g)
-        , "%,"
-        , String.fromFloat (pct b)
-        , "%,"
-        , String.fromFloat (roundTo a)
-        , ")"
-        ]
-
-
-hslaToCssString : Float -> Float -> Float -> Float -> String
-hslaToCssString h s l a =
-    let
-        pct x =
-            ((x * 10000) |> round |> toFloat) / 100
-
-        roundTo x =
-            ((x * 1000) |> round |> toFloat) / 1000
-    in
-    String.concat
-        [ "hsla("
-        , String.fromFloat (roundTo h)
-        , ","
-        , String.fromFloat (pct s)
-        , "%,"
-        , String.fromFloat (pct l)
-        , "%,"
-        , String.fromFloat (roundTo a)
-        , ")"
-        ]
+cssFunction : String -> List String -> String
+cssFunction funcName args =
+    funcName
+        ++ "("
+        ++ String.join "," args
+        ++ ")"
