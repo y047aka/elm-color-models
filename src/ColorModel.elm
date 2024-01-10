@@ -2,6 +2,7 @@ module ColorModel exposing
     ( Color(..)
     , rgb255, rgb, rgba, hsl, hsla
     , fromRgba, fromHsla
+    , toCssString
     , toRgba, toHsla
     )
 
@@ -112,3 +113,25 @@ rgbaToHsla r g b a =
 hslaToRgba : Float -> Float -> Float -> Float -> { red : Float, green : Float, blue : Float, alpha : Float }
 hslaToRgba h s l a =
     Color.toRgba (Color.hsla h s l a)
+
+
+toCssString : Color -> String
+toCssString (RgbaSpace r g b a) =
+    let
+        pct x =
+            ((x * 10000) |> round |> toFloat) / 100
+
+        roundTo x =
+            ((x * 1000) |> round |> toFloat) / 1000
+    in
+    String.concat
+        [ "rgba("
+        , String.fromFloat (pct r)
+        , "%,"
+        , String.fromFloat (pct g)
+        , "%,"
+        , String.fromFloat (pct b)
+        , "%,"
+        , String.fromFloat (roundTo a)
+        , ")"
+        ]
