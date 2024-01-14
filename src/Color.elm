@@ -152,69 +152,60 @@ rgbToHsl r g b =
             else
                 h2
 
-        l =
+        lightness =
             (cMax + cMin) / 2
 
-        s =
-            if cMin == cMax then
+        saturation =
+            if lightness == 0 then
                 0
 
-            else if l < 0.5 then
-                (cMax - cMin) / (cMax + cMin)
-
             else
-                (cMax - cMin) / (2 - cMax - cMin)
+                c / (1 - abs (2 * lightness - 1))
     in
-    ( h3, s, l )
+    ( h3, saturation, lightness )
 
 
 hslToRgb : Float -> Float -> Float -> ( Float, Float, Float )
-hslToRgb h s l =
+hslToRgb hue saturation lightness =
     let
-        m2 =
-            if l <= 0.5 then
-                l * (s + 1)
+        chroma =
+            (1 - abs (2 * lightness - 1)) * saturation
+
+        hue_ =
+            hue * 360
+
+        hueIsBetween lowerBound upperBound =
+            lowerBound <= hue_ && hue_ <= upperBound
+
+        zigUp xIntercept =
+            chroma * (hue_ - xIntercept) / 60
+
+        zigDown xIntercept =
+            -1 * zigUp xIntercept
+
+        ( r, g, b ) =
+            if hueIsBetween 0 60 then
+                ( chroma, zigUp 0, 0 )
+
+            else if hueIsBetween 60 120 then
+                ( zigDown 120, chroma, 0 )
+
+            else if hueIsBetween 120 180 then
+                ( 0, chroma, zigUp 120 )
+
+            else if hueIsBetween 180 240 then
+                ( 0, zigDown 240, chroma )
+
+            else if hueIsBetween 240 300 then
+                ( zigUp 240, 0, chroma )
 
             else
-                l + s - l * s
+                ( chroma, 0, zigDown 360 )
 
-        m1 =
-            l * 2 - m2
-
-        r =
-            hueToRgb (h + 1 / 3)
-
-        g =
-            hueToRgb h
-
-        b =
-            hueToRgb (h - 1 / 3)
-
-        hueToRgb h__ =
-            let
-                h_ =
-                    if h__ < 0 then
-                        h__ + 1
-
-                    else if h__ > 1 then
-                        h__ - 1
-
-                    else
-                        h__
-            in
-            if h_ * 6 < 1 then
-                m1 + (m2 - m1) * h_ * 6
-
-            else if h_ * 2 < 1 then
-                m2
-
-            else if h_ * 3 < 2 then
-                m1 + (m2 - m1) * (2 / 3 - h_) * 6
-
-            else
-                m1
+        m =
+            lightness - chroma / 2
     in
-    ( r, g, b )
+    ( r + m, g + m, b + m )
 
 
 toCssString : Color -> String
