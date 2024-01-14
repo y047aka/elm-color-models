@@ -4,6 +4,7 @@ module Color exposing
     , fromRgba, fromHsla
     , toCssString
     , toRgba, toHsla
+    , rgbaToHsla, hslaToRgba
     )
 
 {-|
@@ -32,6 +33,11 @@ module Color exposing
 # Extracing values from colors
 
 @docs toRgba, toHsla
+
+
+#
+
+@docs rgbaToHsla, hslaToRgba
 
 -}
 
