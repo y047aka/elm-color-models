@@ -1,5 +1,5 @@
 module Color exposing
-    ( Color(..)
+    ( Color
     , rgb255, rgb, rgba, hsl, hsla
     , fromRgba, fromHsla
     , toCssString
@@ -39,28 +39,28 @@ module Color exposing
 {-| Represents a color.
 -}
 type Color
-    = RgbaSpace Float Float Float Float
-    | HslaSpace Float Float Float Float
+    = Rgba Float Float Float Float
+    | Hsla Float Float Float Float
 
 
 fromRgba : { red : Float, green : Float, blue : Float, alpha : Float } -> Color
 fromRgba components =
-    RgbaSpace components.red components.green components.blue components.alpha
+    Rgba components.red components.green components.blue components.alpha
 
 
 rgba : Float -> Float -> Float -> Float -> Color
 rgba r g b a =
-    RgbaSpace r g b a
+    Rgba r g b a
 
 
 rgb : Float -> Float -> Float -> Color
 rgb r g b =
-    RgbaSpace r g b 1.0
+    Rgba r g b 1.0
 
 
 rgb255 : Int -> Int -> Int -> Color
 rgb255 r g b =
-    RgbaSpace (scaleFrom255 r) (scaleFrom255 g) (scaleFrom255 b) 1.0
+    Rgba (scaleFrom255 r) (scaleFrom255 g) (scaleFrom255 b) 1.0
 
 
 scaleFrom255 : Int -> Float
@@ -70,12 +70,12 @@ scaleFrom255 c =
 
 fromHsla : { hue : Float, saturation : Float, lightness : Float, alpha : Float } -> Color
 fromHsla { hue, saturation, lightness, alpha } =
-    HslaSpace hue saturation lightness alpha
+    Hsla hue saturation lightness alpha
 
 
 hsla : Float -> Float -> Float -> Float -> Color
 hsla hue sat light alpha =
-    HslaSpace hue sat light alpha
+    Hsla hue sat light alpha
 
 
 hsl : Float -> Float -> Float -> Color
@@ -86,20 +86,20 @@ hsl h s l =
 toRgba : Color -> { red : Float, green : Float, blue : Float, alpha : Float }
 toRgba c =
     case c of
-        RgbaSpace r g b a ->
+        Rgba r g b a ->
             { red = r, green = g, blue = b, alpha = a }
 
-        HslaSpace h s l a ->
+        Hsla h s l a ->
             hslaToRgba h s l a
 
 
 toHsla : Color -> { hue : Float, saturation : Float, lightness : Float, alpha : Float }
 toHsla c =
     case c of
-        RgbaSpace r g b a ->
+        Rgba r g b a ->
             rgbaToHsla r g b a
 
-        HslaSpace h s l a ->
+        Hsla h s l a ->
             { hue = h, saturation = s, lightness = l, alpha = a }
 
 
@@ -162,13 +162,13 @@ hsla_ hue sat light alpha =
             else
                 m1
     in
-    RgbaSpace r g b alpha
+    Rgba r g b alpha
 
 
 toHsla_ : Color -> { hue : Float, saturation : Float, lightness : Float, alpha : Float }
 toHsla_ c =
     case c of
-        RgbaSpace r g b a ->
+        Rgba r g b a ->
             let
                 minColor =
                     min r (min g b)
@@ -218,7 +218,7 @@ toHsla_ c =
             , alpha = a
             }
 
-        HslaSpace h s l a ->
+        Hsla h s l a ->
             { hue = h, saturation = s, lightness = l, alpha = a }
 
 
@@ -232,7 +232,7 @@ toCssString c =
             ((x * 1000) |> round |> toFloat) / 1000
     in
     case c of
-        RgbaSpace r g b a ->
+        Rgba r g b a ->
             cssFunction "rgba"
                 [ String.fromFloat (pct r) ++ "%"
                 , String.fromFloat (pct g) ++ "%"
@@ -240,7 +240,7 @@ toCssString c =
                 , String.fromFloat (roundTo a)
                 ]
 
-        HslaSpace h s l a ->
+        Hsla h s l a ->
             cssFunction "hsla"
                 [ String.fromFloat (roundTo h)
                 , String.fromFloat (pct s) ++ "%"
