@@ -1,13 +1,13 @@
 module ColorTest exposing (all)
 
-import Color exposing (Color)
+import ColorModel as Color exposing (Color)
 import CssHslReference
 import Expect exposing (FloatingPointTolerance(..))
-import Fuzz exposing (Fuzzer, bool, floatRange, intRange)
-import Hex
+import Fuzz exposing (Fuzzer, floatRange, intRange, pair, triple)
 import Test exposing (..)
 
 
+guaranteedTolerance : FloatingPointTolerance
 guaranteedTolerance =
     Absolute 0.0000000001
 
@@ -28,26 +28,6 @@ int255 =
     intRange 0 255
 
 
-tuple2 : Fuzzer a -> Fuzzer b -> Fuzzer ( a, b )
-tuple2 a b =
-    Fuzz.pair a b
-
-
-tuple3 : Fuzzer a -> Fuzzer b -> Fuzzer c -> Fuzzer ( a, b, c )
-tuple3 a b c =
-    Fuzz.triple a b c
-
-
-hex : Fuzzer Char
-hex =
-    Fuzz.oneOf (List.map Fuzz.constant <| String.toList "0123456789abcdefABCDEF")
-
-
-hex2 : Fuzzer String
-hex2 =
-    Fuzz.map2 (\a b -> String.fromList [ a, b ]) hex hex
-
-
 
 --
 -- Tests
@@ -66,7 +46,7 @@ all =
                 in
                 color
                     |> Expect.equal color
-        , fuzz (tuple2 (tuple3 unit unit unit) unit)
+        , fuzz (pair (triple unit unit unit) unit)
             "can represent RGBA colors (fromRgba)"
           <|
             \( ( r, g, b ), a ) ->
@@ -78,7 +58,7 @@ all =
                         , .blue >> Expect.within guaranteedTolerance b
                         , .alpha >> Expect.within guaranteedTolerance a
                         ]
-        , fuzz (tuple2 (tuple3 unit unit unit) unit)
+        , fuzz (pair (triple unit unit unit) unit)
             "can represent RGBA colors (rgba)"
           <|
             \( ( r, g, b ), a ) ->
@@ -90,7 +70,7 @@ all =
                         , .blue >> Expect.within guaranteedTolerance b
                         , .alpha >> Expect.within guaranteedTolerance a
                         ]
-        , fuzz (tuple3 unit unit unit)
+        , fuzz (triple unit unit unit)
             "can represent RGBA colors (rgb)"
           <|
             \( r, g, b ) ->
@@ -102,7 +82,7 @@ all =
                         , .blue >> Expect.within guaranteedTolerance b
                         , .alpha >> Expect.equal 1.0
                         ]
-        , fuzz (tuple3 int255 int255 int255)
+        , fuzz (triple int255 int255 int255)
             "can represent RGB255 colors"
           <|
             \( r, g, b ) ->
@@ -114,7 +94,7 @@ all =
                         , .blue >> Expect.within guaranteedTolerance (toFloat b / 255)
                         , .alpha >> Expect.equal 1.0
                         ]
-        , fuzz (tuple2 (tuple3 unit unit unit) unit)
+        , fuzz (pair (triple unit unit unit) unit)
             "can represent HSLA colors (fromHsla)"
           <|
             \( ( h, s, l ), a ) ->
@@ -126,7 +106,7 @@ all =
                                 -- hue does not apply
                                 Expect.pass
 
-                            else if h >= 1 then
+                            else if h > 1 then
                                 result.hue |> Expect.within guaranteedTolerance (h - 1)
 
                             else
@@ -143,7 +123,7 @@ all =
                         , .lightness >> Expect.within guaranteedTolerance l
                         , .alpha >> Expect.within guaranteedTolerance a
                         ]
-        , fuzz (tuple3 unit unit unit)
+        , fuzz (triple unit unit unit)
             "can represent HSLA colors (hsl)"
           <|
             \( h, s, l ) ->
@@ -155,7 +135,7 @@ all =
                                 -- hue does not apply
                                 Expect.pass
 
-                            else if h >= 1 then
+                            else if h > 1 then
                                 result.hue |> Expect.within guaranteedTolerance (h - 1)
 
                             else
@@ -172,7 +152,7 @@ all =
                         , .lightness >> Expect.within guaranteedTolerance l
                         , .alpha >> Expect.equal 1.0
                         ]
-        , fuzz (tuple2 (tuple3 unit unit unit) unit)
+        , fuzz (pair (triple unit unit unit) unit)
             "can represent HSLA colors (hsla)"
           <|
             \( ( h, s, l ), a ) ->
@@ -184,24 +164,22 @@ all =
                                 -- hue does not apply
                                 Expect.pass
 
-                            else if h >= 1 then
+                            else if h > 1 then
                                 result.hue |> Expect.within guaranteedTolerance (h - 1)
 
                             else
-                                -- result.hue |> Expect.within guaranteedTolerance h
-                                Expect.pass
+                                result.hue |> Expect.within guaranteedTolerance h
                         , \result ->
                             if result.lightness == 1 || result.lightness == 0 then
                                 -- saturation does not apply
                                 Expect.pass
 
                             else
-                                -- result.saturation |> Expect.within guaranteedTolerance s
-                                Expect.pass
+                                result.saturation |> Expect.within guaranteedTolerance s
                         , .lightness >> Expect.within guaranteedTolerance l
                         , .alpha >> Expect.within guaranteedTolerance a
                         ]
-        , fuzz (tuple2 (tuple3 (intRange 0 10000) (intRange 0 10000) (intRange 0 10000)) (intRange 0 1000))
+        , fuzz (pair (triple (intRange 0 10000) (intRange 0 10000) (intRange 0 10000)) (intRange 0 1000))
             "can convert to CSS rgba strings"
           <|
             \( ( r, g, b ), a ) ->
