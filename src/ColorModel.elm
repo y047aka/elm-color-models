@@ -35,8 +35,6 @@ module ColorModel exposing
 
 -}
 
-import Color
-
 
 {-| Represents a color.
 -}
@@ -107,12 +105,121 @@ toHsla c =
 
 rgbaToHsla : Float -> Float -> Float -> Float -> { hue : Float, saturation : Float, lightness : Float, alpha : Float }
 rgbaToHsla r g b a =
-    Color.toHsla (Color.rgba r g b a)
+    toHsla_ (rgba r g b a)
 
 
 hslaToRgba : Float -> Float -> Float -> Float -> { red : Float, green : Float, blue : Float, alpha : Float }
 hslaToRgba h s l a =
-    Color.toRgba (Color.hsla h s l a)
+    toRgba (hsla_ h s l a)
+
+
+hsla_ : Float -> Float -> Float -> Float -> Color
+hsla_ hue sat light alpha =
+    let
+        ( h, s, l ) =
+            ( hue, sat, light )
+
+        m2 =
+            if l <= 0.5 then
+                l * (s + 1)
+
+            else
+                l + s - l * s
+
+        m1 =
+            l * 2 - m2
+
+        r =
+            hueToRgb (h + 1 / 3)
+
+        g =
+            hueToRgb h
+
+        b =
+            hueToRgb (h - 1 / 3)
+
+        hueToRgb h__ =
+            let
+                h_ =
+                    if h__ < 0 then
+                        h__ + 1
+
+                    else if h__ > 1 then
+                        h__ - 1
+
+                    else
+                        h__
+            in
+            if h_ * 6 < 1 then
+                m1 + (m2 - m1) * h_ * 6
+
+            else if h_ * 2 < 1 then
+                m2
+
+            else if h_ * 3 < 2 then
+                m1 + (m2 - m1) * (2 / 3 - h_) * 6
+
+            else
+                m1
+    in
+    RgbaSpace r g b alpha
+
+
+toHsla_ : Color -> { hue : Float, saturation : Float, lightness : Float, alpha : Float }
+toHsla_ c =
+    case c of
+        RgbaSpace r g b a ->
+            let
+                minColor =
+                    min r (min g b)
+
+                maxColor =
+                    max r (max g b)
+
+                h1 =
+                    if maxColor == r then
+                        (g - b) / (maxColor - minColor)
+
+                    else if maxColor == g then
+                        2 + (b - r) / (maxColor - minColor)
+
+                    else
+                        4 + (r - g) / (maxColor - minColor)
+
+                h2 =
+                    h1 * (1 / 6)
+
+                h3 =
+                    if isNaN h2 then
+                        0
+
+                    else if h2 < 0 then
+                        h2 + 1
+
+                    else
+                        h2
+
+                l =
+                    (minColor + maxColor) / 2
+
+                s =
+                    if minColor == maxColor then
+                        0
+
+                    else if l < 0.5 then
+                        (maxColor - minColor) / (maxColor + minColor)
+
+                    else
+                        (maxColor - minColor) / (2 - maxColor - minColor)
+            in
+            { hue = h3
+            , saturation = s
+            , lightness = l
+            , alpha = a
+            }
+
+        HslaSpace h s l a ->
+            { hue = h, saturation = s, lightness = l, alpha = a }
 
 
 toCssString : Color -> String
