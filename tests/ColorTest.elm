@@ -204,6 +204,7 @@ all =
                     test (String.fromInt i ++ ": " ++ Debug.toString info) <|
                         \() ->
                             Color.hslToRgb info.h info.s info.l
+                                |> (\( r, g, b ) -> { red = r, green = g, blue = b })
                                 |> Expect.all
                                     [ .red >> Expect.within guaranteedTolerance info.r
                                     , .green >> Expect.within guaranteedTolerance info.g
@@ -214,6 +215,7 @@ all =
                     test (String.fromInt i ++ ": " ++ Debug.toString info) <|
                         \() ->
                             Color.rgbToHsl info.r info.g info.b
+                                |> (\( h, s, l ) -> { hue = h, saturation = s, lightness = l })
                                 |> Expect.all
                                     [ if info.l == 1 || info.l == 0 || info.s == 0 then
                                         -- hue does not apply

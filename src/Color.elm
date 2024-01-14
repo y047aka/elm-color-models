@@ -97,7 +97,7 @@ toRgba c =
 
         Hsla h s l a ->
             let
-                { red, green, blue } =
+                ( red, green, blue ) =
                     hslToRgb h s l
             in
             { red = red, green = green, blue = blue, alpha = a }
@@ -108,7 +108,7 @@ toHsla c =
     case c of
         Rgba r g b a ->
             let
-                { hue, saturation, lightness } =
+                ( hue, saturation, lightness ) =
                     rgbToHsl r g b
             in
             { hue = hue, saturation = saturation, lightness = lightness, alpha = a }
@@ -117,7 +117,7 @@ toHsla c =
             { hue = h, saturation = s, lightness = l, alpha = a }
 
 
-rgbToHsl : Float -> Float -> Float -> { hue : Float, saturation : Float, lightness : Float }
+rgbToHsl : Float -> Float -> Float -> ( Float, Float, Float )
 rgbToHsl r g b =
     let
         minColor =
@@ -162,13 +162,10 @@ rgbToHsl r g b =
             else
                 (maxColor - minColor) / (2 - maxColor - minColor)
     in
-    { hue = h3
-    , saturation = s
-    , lightness = l
-    }
+    ( h3, s, l )
 
 
-hslToRgb : Float -> Float -> Float -> { red : Float, green : Float, blue : Float }
+hslToRgb : Float -> Float -> Float -> ( Float, Float, Float )
 hslToRgb h s l =
     let
         m2 =
@@ -214,7 +211,7 @@ hslToRgb h s l =
             else
                 m1
     in
-    { red = r, green = g, blue = b }
+    ( r, g, b )
 
 
 toCssString : Color -> String
