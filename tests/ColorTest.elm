@@ -203,18 +203,17 @@ all =
                 testHslToRgb i info =
                     test (String.fromInt i ++ ": " ++ Debug.toString info) <|
                         \() ->
-                            Color.hslaToRgba info.h info.s info.l 1.0
+                            Color.hslToRgb info.h info.s info.l
                                 |> Expect.all
                                     [ .red >> Expect.within guaranteedTolerance info.r
                                     , .green >> Expect.within guaranteedTolerance info.g
                                     , .blue >> Expect.within guaranteedTolerance info.b
-                                    , .alpha >> Expect.equal 1.0
                                     ]
 
                 testRgbToHsl i info =
                     test (String.fromInt i ++ ": " ++ Debug.toString info) <|
                         \() ->
-                            Color.rgbaToHsla info.r info.g info.b 1.0
+                            Color.rgbToHsl info.r info.g info.b
                                 |> Expect.all
                                     [ if info.l == 1 || info.l == 0 || info.s == 0 then
                                         -- hue does not apply
@@ -232,7 +231,6 @@ all =
                                       else
                                         .saturation >> Expect.within guaranteedTolerance info.s
                                     , .lightness >> Expect.within guaranteedTolerance info.l
-                                    , .alpha >> Expect.equal 1.0
                                     ]
             in
             [ describe "HSL to RGB" <|

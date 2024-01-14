@@ -4,7 +4,7 @@ module Color exposing
     , fromRgba, fromHsla
     , toCssString
     , toRgba, toHsla
-    , rgbaToHsla, hslaToRgba
+    , rgbToHsl, hslToRgb
     )
 
 {-|
@@ -37,7 +37,7 @@ module Color exposing
 
 #
 
-@docs rgbaToHsla, hslaToRgba
+@docs rgbToHsl, hslToRgb
 
 -}
 
@@ -96,21 +96,29 @@ toRgba c =
             { red = r, green = g, blue = b, alpha = a }
 
         Hsla h s l a ->
-            hslaToRgba h s l a
+            let
+                { red, green, blue } =
+                    hslToRgb h s l
+            in
+            { red = red, green = green, blue = blue, alpha = a }
 
 
 toHsla : Color -> { hue : Float, saturation : Float, lightness : Float, alpha : Float }
 toHsla c =
     case c of
         Rgba r g b a ->
-            rgbaToHsla r g b a
+            let
+                { hue, saturation, lightness } =
+                    rgbToHsl r g b
+            in
+            { hue = hue, saturation = saturation, lightness = lightness, alpha = a }
 
         Hsla h s l a ->
             { hue = h, saturation = s, lightness = l, alpha = a }
 
 
-rgbaToHsla : Float -> Float -> Float -> Float -> { hue : Float, saturation : Float, lightness : Float, alpha : Float }
-rgbaToHsla r g b a =
+rgbToHsl : Float -> Float -> Float -> { hue : Float, saturation : Float, lightness : Float }
+rgbToHsl r g b =
     let
         minColor =
             min r (min g b)
@@ -157,12 +165,11 @@ rgbaToHsla r g b a =
     { hue = h3
     , saturation = s
     , lightness = l
-    , alpha = a
     }
 
 
-hslaToRgba : Float -> Float -> Float -> Float -> { red : Float, green : Float, blue : Float, alpha : Float }
-hslaToRgba h s l a =
+hslToRgb : Float -> Float -> Float -> { red : Float, green : Float, blue : Float }
+hslToRgb h s l =
     let
         m2 =
             if l <= 0.5 then
@@ -207,7 +214,7 @@ hslaToRgba h s l a =
             else
                 m1
     in
-    { red = r, green = g, blue = b, alpha = a }
+    { red = r, green = g, blue = b }
 
 
 toCssString : Color -> String
