@@ -111,7 +111,54 @@ toHsla c =
 
 rgbaToHsla : Float -> Float -> Float -> Float -> { hue : Float, saturation : Float, lightness : Float, alpha : Float }
 rgbaToHsla r g b a =
-    toHsla_ (rgba r g b a)
+    let
+        minColor =
+            min r (min g b)
+
+        maxColor =
+            max r (max g b)
+
+        h1 =
+            if maxColor == r then
+                (g - b) / (maxColor - minColor)
+
+            else if maxColor == g then
+                2 + (b - r) / (maxColor - minColor)
+
+            else
+                4 + (r - g) / (maxColor - minColor)
+
+        h2 =
+            h1 * (1 / 6)
+
+        h3 =
+            if isNaN h2 then
+                0
+
+            else if h2 < 0 then
+                h2 + 1
+
+            else
+                h2
+
+        l =
+            (minColor + maxColor) / 2
+
+        s =
+            if minColor == maxColor then
+                0
+
+            else if l < 0.5 then
+                (maxColor - minColor) / (maxColor + minColor)
+
+            else
+                (maxColor - minColor) / (2 - maxColor - minColor)
+    in
+    { hue = h3
+    , saturation = s
+    , lightness = l
+    , alpha = a
+    }
 
 
 hslaToRgba : Float -> Float -> Float -> Float -> { red : Float, green : Float, blue : Float, alpha : Float }
@@ -169,63 +216,6 @@ hsla_ hue sat light alpha =
                 m1
     in
     Rgba r g b alpha
-
-
-toHsla_ : Color -> { hue : Float, saturation : Float, lightness : Float, alpha : Float }
-toHsla_ c =
-    case c of
-        Rgba r g b a ->
-            let
-                minColor =
-                    min r (min g b)
-
-                maxColor =
-                    max r (max g b)
-
-                h1 =
-                    if maxColor == r then
-                        (g - b) / (maxColor - minColor)
-
-                    else if maxColor == g then
-                        2 + (b - r) / (maxColor - minColor)
-
-                    else
-                        4 + (r - g) / (maxColor - minColor)
-
-                h2 =
-                    h1 * (1 / 6)
-
-                h3 =
-                    if isNaN h2 then
-                        0
-
-                    else if h2 < 0 then
-                        h2 + 1
-
-                    else
-                        h2
-
-                l =
-                    (minColor + maxColor) / 2
-
-                s =
-                    if minColor == maxColor then
-                        0
-
-                    else if l < 0.5 then
-                        (maxColor - minColor) / (maxColor + minColor)
-
-                    else
-                        (maxColor - minColor) / (2 - maxColor - minColor)
-            in
-            { hue = h3
-            , saturation = s
-            , lightness = l
-            , alpha = a
-            }
-
-        Hsla h s l a ->
-            { hue = h, saturation = s, lightness = l, alpha = a }
 
 
 toCssString : Color -> String
