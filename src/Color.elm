@@ -120,21 +120,24 @@ toHsla c =
 rgbToHsl : Float -> Float -> Float -> ( Float, Float, Float )
 rgbToHsl r g b =
     let
-        minColor =
-            min r (min g b)
+        cMax =
+            max (max r g) b
 
-        maxColor =
-            max r (max g b)
+        cMin =
+            min (min r g) b
+
+        c =
+            cMax - cMin
 
         h1 =
-            if maxColor == r then
-                (g - b) / (maxColor - minColor)
+            if cMax == r then
+                (g - b) / c
 
-            else if maxColor == g then
-                2 + (b - r) / (maxColor - minColor)
+            else if cMax == g then
+                ((b - r) / c) + 2
 
             else
-                4 + (r - g) / (maxColor - minColor)
+                ((r - g) / c) + 4
 
         h2 =
             h1 * (1 / 6)
@@ -150,17 +153,17 @@ rgbToHsl r g b =
                 h2
 
         l =
-            (minColor + maxColor) / 2
+            (cMax + cMin) / 2
 
         s =
-            if minColor == maxColor then
+            if cMin == cMax then
                 0
 
             else if l < 0.5 then
-                (maxColor - minColor) / (maxColor + minColor)
+                (cMax - cMin) / (cMax + cMin)
 
             else
-                (maxColor - minColor) / (2 - maxColor - minColor)
+                (cMax - cMin) / (2 - cMax - cMin)
     in
     ( h3, s, l )
 
