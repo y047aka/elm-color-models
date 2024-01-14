@@ -163,15 +163,7 @@ rgbaToHsla r g b a =
 
 hslaToRgba : Float -> Float -> Float -> Float -> { red : Float, green : Float, blue : Float, alpha : Float }
 hslaToRgba h s l a =
-    toRgba (hsla_ h s l a)
-
-
-hsla_ : Float -> Float -> Float -> Float -> Color
-hsla_ hue sat light alpha =
     let
-        ( h, s, l ) =
-            ( hue, sat, light )
-
         m2 =
             if l <= 0.5 then
                 l * (s + 1)
@@ -215,7 +207,7 @@ hsla_ hue sat light alpha =
             else
                 m1
     in
-    Rgba r g b alpha
+    { red = r, green = g, blue = b, alpha = a }
 
 
 toCssString : Color -> String
