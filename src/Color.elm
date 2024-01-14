@@ -1,4 +1,4 @@
-module ColorModel exposing
+module Color exposing
     ( Color(..)
     , rgb255, rgb, rgba, hsl, hsla
     , fromRgba, fromHsla

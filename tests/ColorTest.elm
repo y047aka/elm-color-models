@@ -1,6 +1,6 @@
 module ColorTest exposing (all)
 
-import ColorModel as Color exposing (Color)
+import Color exposing (Color)
 import CssHslReference
 import Expect exposing (FloatingPointTolerance(..))
 import Fuzz exposing (Fuzzer, floatRange, intRange, pair, triple)
