@@ -23,9 +23,9 @@ unit =
     floatRange 0 1
 
 
-int255 : Fuzzer Int
-int255 =
-    intRange 0 255
+int25500 : Fuzzer Int
+int25500 =
+    intRange 0 25500
 
 
 
@@ -46,52 +46,40 @@ all =
                 in
                 color
                     |> Expect.equal color
-        , fuzz (pair (triple unit unit unit) unit)
+        , fuzz (pair (triple int25500 int25500 int25500) unit)
             "can represent RGBA colors (fromRgba)"
           <|
             \( ( r, g, b ), a ) ->
-                Color.fromRgba { red = r, green = g, blue = b, alpha = a }
+                Color.fromRgba { red = toFloat r / 100, green = toFloat g / 100, blue = toFloat b / 100, alpha = a }
                     |> Color.toRgba
                     |> Expect.all
-                        [ .red >> Expect.within guaranteedTolerance r
-                        , .green >> Expect.within guaranteedTolerance g
-                        , .blue >> Expect.within guaranteedTolerance b
+                        [ .red >> Expect.within guaranteedTolerance (toFloat r / 100)
+                        , .green >> Expect.within guaranteedTolerance (toFloat g / 100)
+                        , .blue >> Expect.within guaranteedTolerance (toFloat b / 100)
                         , .alpha >> Expect.within guaranteedTolerance a
                         ]
-        , fuzz (pair (triple unit unit unit) unit)
+        , fuzz (pair (triple int25500 int25500 int25500) unit)
             "can represent RGBA colors (rgba)"
           <|
             \( ( r, g, b ), a ) ->
-                Color.rgba r g b a
+                Color.rgba (toFloat r / 100) (toFloat g / 100) (toFloat b / 100) a
                     |> Color.toRgba
                     |> Expect.all
-                        [ .red >> Expect.within guaranteedTolerance r
-                        , .green >> Expect.within guaranteedTolerance g
-                        , .blue >> Expect.within guaranteedTolerance b
+                        [ .red >> Expect.within guaranteedTolerance (toFloat r / 100)
+                        , .green >> Expect.within guaranteedTolerance (toFloat g / 100)
+                        , .blue >> Expect.within guaranteedTolerance (toFloat b / 100)
                         , .alpha >> Expect.within guaranteedTolerance a
                         ]
-        , fuzz (triple unit unit unit)
+        , fuzz (triple int25500 int25500 int25500)
             "can represent RGBA colors (rgb)"
           <|
             \( r, g, b ) ->
-                Color.rgb r g b
+                Color.rgb (toFloat r / 100) (toFloat g / 100) (toFloat b / 100)
                     |> Color.toRgba
                     |> Expect.all
-                        [ .red >> Expect.within guaranteedTolerance r
-                        , .green >> Expect.within guaranteedTolerance g
-                        , .blue >> Expect.within guaranteedTolerance b
-                        , .alpha >> Expect.equal 1.0
-                        ]
-        , fuzz (triple int255 int255 int255)
-            "can represent RGB255 colors"
-          <|
-            \( r, g, b ) ->
-                Color.rgb255 r g b
-                    |> Color.toRgba
-                    |> Expect.all
-                        [ .red >> Expect.within guaranteedTolerance (toFloat r / 255)
-                        , .green >> Expect.within guaranteedTolerance (toFloat g / 255)
-                        , .blue >> Expect.within guaranteedTolerance (toFloat b / 255)
+                        [ .red >> Expect.within guaranteedTolerance (toFloat r / 100)
+                        , .green >> Expect.within guaranteedTolerance (toFloat g / 100)
+                        , .blue >> Expect.within guaranteedTolerance (toFloat b / 100)
                         , .alpha >> Expect.equal 1.0
                         ]
         , fuzz (pair (triple unit unit unit) unit)
@@ -179,21 +167,21 @@ all =
                         , .lightness >> Expect.within guaranteedTolerance l
                         , .alpha >> Expect.within guaranteedTolerance a
                         ]
-        , fuzz (pair (triple (intRange 0 10000) (intRange 0 10000) (intRange 0 10000)) (intRange 0 1000))
+        , fuzz (pair (triple int25500 int25500 int25500) (intRange 0 1000))
             "can convert to CSS rgba strings"
           <|
             \( ( r, g, b ), a ) ->
-                Color.rgba (toFloat r / 10000) (toFloat g / 10000) (toFloat b / 10000) (toFloat a / 1000)
+                Color.rgba (toFloat r / 100) (toFloat g / 100) (toFloat b / 100) (toFloat a / 1000)
                     |> Color.toCssString
                     |> Expect.equal
                         (String.concat
                             [ "rgba("
                             , String.fromFloat (toFloat r / 100)
-                            , "%,"
+                            , ","
                             , String.fromFloat (toFloat g / 100)
-                            , "%,"
+                            , ","
                             , String.fromFloat (toFloat b / 100)
-                            , "%,"
+                            , ","
                             , String.fromFloat (toFloat a / 1000)
                             , ")"
                             ]
@@ -204,7 +192,7 @@ all =
                     test (String.fromInt i ++ ": " ++ Debug.toString info) <|
                         \() ->
                             Color.hslToRgb info.h info.s info.l
-                                |> (\( r, g, b ) -> { red = r, green = g, blue = b })
+                                |> (\( r, g, b ) -> { red = r / 255, green = g / 255, blue = b / 255 })
                                 |> Expect.all
                                     [ .red >> Expect.within guaranteedTolerance info.r
                                     , .green >> Expect.within guaranteedTolerance info.g
@@ -214,7 +202,7 @@ all =
                 testRgbToHsl i info =
                     test (String.fromInt i ++ ": " ++ Debug.toString info) <|
                         \() ->
-                            Color.rgbToHsl info.r info.g info.b
+                            Color.rgbToHsl (info.r * 255) (info.g * 255) (info.b * 255)
                                 |> (\( h, s, l ) -> { hue = h, saturation = s, lightness = l })
                                 |> Expect.all
                                     [ if info.l == 1 || info.l == 0 || info.s == 0 then

@@ -1,6 +1,6 @@
 module Color exposing
     ( Color
-    , rgb255, rgb, rgba, hsl, hsla
+    , rgb, rgba, hsl, hsla
     , fromRgba, fromHsla
     , toCssString
     , toRgba, toHsla
@@ -17,7 +17,7 @@ module Color exposing
 
 ## From numbers
 
-@docs rgb255, rgb, rgba, hsl, hsla
+@docs rgb, rgba, hsl, hsla
 
 
 ## From records
@@ -45,33 +45,23 @@ module Color exposing
 {-| Represents a color.
 -}
 type Color
-    = Rgba Float Float Float Float
+    = Rgba255 Float Float Float Float
     | Hsla Float Float Float Float
 
 
 fromRgba : { red : Float, green : Float, blue : Float, alpha : Float } -> Color
 fromRgba components =
-    Rgba components.red components.green components.blue components.alpha
+    Rgba255 components.red components.green components.blue components.alpha
 
 
 rgba : Float -> Float -> Float -> Float -> Color
 rgba r g b a =
-    Rgba r g b a
+    Rgba255 r g b a
 
 
 rgb : Float -> Float -> Float -> Color
 rgb r g b =
-    Rgba r g b 1.0
-
-
-rgb255 : Int -> Int -> Int -> Color
-rgb255 r g b =
-    Rgba (scaleFrom255 r) (scaleFrom255 g) (scaleFrom255 b) 1.0
-
-
-scaleFrom255 : Int -> Float
-scaleFrom255 c =
-    toFloat c / 255
+    Rgba255 r g b 1.0
 
 
 fromHsla : { hue : Float, saturation : Float, lightness : Float, alpha : Float } -> Color
@@ -92,7 +82,7 @@ hsl h s l =
 toRgba : Color -> { red : Float, green : Float, blue : Float, alpha : Float }
 toRgba c =
     case c of
-        Rgba r g b a ->
+        Rgba255 r g b a ->
             { red = r, green = g, blue = b, alpha = a }
 
         Hsla h s l a ->
@@ -106,7 +96,7 @@ toRgba c =
 toHsla : Color -> { hue : Float, saturation : Float, lightness : Float, alpha : Float }
 toHsla c =
     case c of
-        Rgba r g b a ->
+        Rgba255 r g b a ->
             let
                 ( hue, saturation, lightness ) =
                     rgbToHsl r g b
@@ -118,8 +108,11 @@ toHsla c =
 
 
 rgbToHsl : Float -> Float -> Float -> ( Float, Float, Float )
-rgbToHsl r g b =
+rgbToHsl red green blue =
     let
+        ( r, g, b ) =
+            ( red / 255, green / 255, blue / 255 )
+
         cMax =
             max (max r g) b
 
@@ -205,7 +198,7 @@ hslToRgb hue saturation lightness =
         m =
             lightness - chroma / 2
     in
-    ( r + m, g + m, b + m )
+    ( (r + m) * 255, (g + m) * 255, (b + m) * 255 )
 
 
 toCssString : Color -> String
@@ -218,11 +211,11 @@ toCssString c =
             ((x * 1000) |> round |> toFloat) / 1000
     in
     case c of
-        Rgba r g b a ->
+        Rgba255 r g b a ->
             cssFunction "rgba"
-                [ String.fromFloat (pct r) ++ "%"
-                , String.fromFloat (pct g) ++ "%"
-                , String.fromFloat (pct b) ++ "%"
+                [ String.fromFloat (roundTo r)
+                , String.fromFloat (roundTo g)
+                , String.fromFloat (roundTo b)
                 , String.fromFloat (roundTo a)
                 ]
 
