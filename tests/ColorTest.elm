@@ -98,16 +98,14 @@ all =
                                 result.hue |> Expect.within guaranteedTolerance (h - 1)
 
                             else
-                                -- result.hue |> Expect.within guaranteedTolerance h
-                                Expect.pass
+                                result.hue |> Expect.within guaranteedTolerance h
                         , \result ->
                             if result.lightness == 1 || result.lightness == 0 then
                                 -- saturation does not apply
                                 Expect.pass
 
                             else
-                                -- result.saturation |> Expect.within guaranteedTolerance s
-                                Expect.pass
+                                result.saturation |> Expect.within guaranteedTolerance s
                         , .lightness >> Expect.within guaranteedTolerance l
                         , .alpha >> Expect.within guaranteedTolerance a
                         ]
@@ -127,16 +125,14 @@ all =
                                 result.hue |> Expect.within guaranteedTolerance (h - 1)
 
                             else
-                                -- result.hue |> Expect.within guaranteedTolerance h
-                                Expect.pass
+                                result.hue |> Expect.within guaranteedTolerance h
                         , \result ->
                             if result.lightness == 1 || result.lightness == 0 then
                                 -- saturation does not apply
                                 Expect.pass
 
                             else
-                                -- result.saturation |> Expect.within guaranteedTolerance s
-                                Expect.pass
+                                result.saturation |> Expect.within guaranteedTolerance s
                         , .lightness >> Expect.within guaranteedTolerance l
                         , .alpha >> Expect.equal 1.0
                         ]
