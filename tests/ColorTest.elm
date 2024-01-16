@@ -182,6 +182,25 @@ all =
                             , ")"
                             ]
                         )
+        , fuzz (pair (triple (intRange 0 100) (intRange 0 100) (intRange 0 100)) (intRange 0 1000))
+            "can convert to CSS hsla strings"
+          <|
+            \( ( h, s, l ), a ) ->
+                Color.hsla (toFloat h / 100) (toFloat s / 100) (toFloat l / 100) (toFloat a / 1000)
+                    |> Color.toCssString
+                    |> Expect.equal
+                        (String.concat
+                            [ "hsla("
+                            , String.fromFloat (toFloat h / 100)
+                            , ","
+                            , String.fromFloat (toFloat s)
+                            , "%,"
+                            , String.fromFloat (toFloat l)
+                            , "%,"
+                            , String.fromFloat (toFloat a / 1000)
+                            , ")"
+                            ]
+                        )
         , describe "color reference" <|
             let
                 testHslToRgb i info =
