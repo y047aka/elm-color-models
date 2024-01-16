@@ -28,6 +28,11 @@ int25500 =
     intRange 0 25500
 
 
+int36000 : Fuzzer Int
+int36000 =
+    intRange 0 36000
+
+
 
 --
 -- Tests
@@ -82,11 +87,11 @@ all =
                         , .blue >> Expect.within guaranteedTolerance (toFloat b / 100)
                         , .alpha >> Expect.equal 1.0
                         ]
-        , fuzz (pair (triple unit unit unit) unit)
+        , fuzz (pair (triple int36000 unit unit) unit)
             "can represent HSLA colors (fromHsla)"
           <|
             \( ( h, s, l ), a ) ->
-                Color.fromHsla { hue = h, saturation = s, lightness = l, alpha = a }
+                Color.fromHsla { hue = toFloat h / 100, saturation = s, lightness = l, alpha = a }
                     |> Color.toHsla
                     |> Expect.all
                         [ \result ->
@@ -94,11 +99,11 @@ all =
                                 -- hue does not apply
                                 Expect.pass
 
-                            else if h > 1 then
-                                result.hue |> Expect.within guaranteedTolerance (h - 1)
+                            else if (toFloat h / 36000) > 1 then
+                                result.hue |> Expect.within guaranteedTolerance ((toFloat h / 100) - 360)
 
                             else
-                                result.hue |> Expect.within guaranteedTolerance h
+                                result.hue |> Expect.within guaranteedTolerance (toFloat h / 100)
                         , \result ->
                             if result.lightness == 1 || result.lightness == 0 then
                                 -- saturation does not apply
@@ -109,11 +114,11 @@ all =
                         , .lightness >> Expect.within guaranteedTolerance l
                         , .alpha >> Expect.within guaranteedTolerance a
                         ]
-        , fuzz (triple unit unit unit)
+        , fuzz (triple int36000 unit unit)
             "can represent HSLA colors (hsl)"
           <|
             \( h, s, l ) ->
-                Color.hsl h s l
+                Color.hsl (toFloat h / 100) s l
                     |> Color.toHsla
                     |> Expect.all
                         [ \result ->
@@ -121,11 +126,11 @@ all =
                                 -- hue does not apply
                                 Expect.pass
 
-                            else if h > 1 then
-                                result.hue |> Expect.within guaranteedTolerance (h - 1)
+                            else if (toFloat h / 36000) > 1 then
+                                result.hue |> Expect.within guaranteedTolerance ((toFloat h / 100) - 360)
 
                             else
-                                result.hue |> Expect.within guaranteedTolerance h
+                                result.hue |> Expect.within guaranteedTolerance (toFloat h / 100)
                         , \result ->
                             if result.lightness == 1 || result.lightness == 0 then
                                 -- saturation does not apply
@@ -136,11 +141,11 @@ all =
                         , .lightness >> Expect.within guaranteedTolerance l
                         , .alpha >> Expect.equal 1.0
                         ]
-        , fuzz (pair (triple unit unit unit) unit)
+        , fuzz (pair (triple int36000 unit unit) unit)
             "can represent HSLA colors (hsla)"
           <|
             \( ( h, s, l ), a ) ->
-                Color.hsla h s l a
+                Color.hsla (toFloat h / 100) s l a
                     |> Color.toHsla
                     |> Expect.all
                         [ \result ->
@@ -148,11 +153,11 @@ all =
                                 -- hue does not apply
                                 Expect.pass
 
-                            else if h > 1 then
-                                result.hue |> Expect.within guaranteedTolerance (h - 1)
+                            else if (toFloat h / 36000) > 1 then
+                                result.hue |> Expect.within guaranteedTolerance ((toFloat h / 100) - 360)
 
                             else
-                                result.hue |> Expect.within guaranteedTolerance h
+                                result.hue |> Expect.within guaranteedTolerance (toFloat h / 100)
                         , \result ->
                             if result.lightness == 1 || result.lightness == 0 then
                                 -- saturation does not apply
@@ -206,7 +211,7 @@ all =
                 testHslToRgb i info =
                     test (String.fromInt i ++ ": " ++ Debug.toString info) <|
                         \() ->
-                            Color.hslToRgb info.h info.s info.l
+                            Color.hslToRgb (info.h * 360) info.s info.l
                                 |> (\( r, g, b ) -> { red = r / 255, green = g / 255, blue = b / 255 })
                                 |> Expect.all
                                     [ .red >> Expect.within guaranteedTolerance info.r
@@ -218,7 +223,7 @@ all =
                     test (String.fromInt i ++ ": " ++ Debug.toString info) <|
                         \() ->
                             Color.rgbToHsl (info.r * 255) (info.g * 255) (info.b * 255)
-                                |> (\( h, s, l ) -> { hue = h, saturation = s, lightness = l })
+                                |> (\( h, s, l ) -> { hue = h / 360, saturation = s, lightness = l })
                                 |> Expect.all
                                     [ if info.l == 1 || info.l == 0 || info.s == 0 then
                                         -- hue does not apply

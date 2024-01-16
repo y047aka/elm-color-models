@@ -46,7 +46,7 @@ module Color exposing
 -}
 type Color
     = Rgba255 Float Float Float Float
-    | Hsla Float Float Float Float
+    | Hsla360 Float Float Float Float
 
 
 fromRgba : { red : Float, green : Float, blue : Float, alpha : Float } -> Color
@@ -66,12 +66,12 @@ rgb r g b =
 
 fromHsla : { hue : Float, saturation : Float, lightness : Float, alpha : Float } -> Color
 fromHsla { hue, saturation, lightness, alpha } =
-    Hsla hue saturation lightness alpha
+    Hsla360 hue saturation lightness alpha
 
 
 hsla : Float -> Float -> Float -> Float -> Color
 hsla hue sat light alpha =
-    Hsla hue sat light alpha
+    Hsla360 hue sat light alpha
 
 
 hsl : Float -> Float -> Float -> Color
@@ -85,7 +85,7 @@ toRgba c =
         Rgba255 r g b a ->
             { red = r, green = g, blue = b, alpha = a }
 
-        Hsla h s l a ->
+        Hsla360 h s l a ->
             let
                 ( red, green, blue ) =
                     hslToRgb h s l
@@ -103,7 +103,7 @@ toHsla c =
             in
             { hue = hue, saturation = saturation, lightness = lightness, alpha = a }
 
-        Hsla h s l a ->
+        Hsla360 h s l a ->
             { hue = h, saturation = s, lightness = l, alpha = a }
 
 
@@ -155,7 +155,7 @@ rgbToHsl red green blue =
             else
                 c / (1 - abs (2 * lightness - 1))
     in
-    ( h3, saturation, lightness )
+    ( h3 * 360, saturation, lightness )
 
 
 hslToRgb : Float -> Float -> Float -> ( Float, Float, Float )
@@ -164,14 +164,11 @@ hslToRgb hue saturation lightness =
         chroma =
             (1 - abs (2 * lightness - 1)) * saturation
 
-        hue_ =
-            hue * 360
-
         hueIsBetween lowerBound upperBound =
-            lowerBound <= hue_ && hue_ <= upperBound
+            lowerBound <= hue && hue <= upperBound
 
         zigUp xIntercept =
-            chroma * (hue_ - xIntercept) / 60
+            chroma * (hue - xIntercept) / 60
 
         zigDown xIntercept =
             -1 * zigUp xIntercept
@@ -219,7 +216,7 @@ toCssString c =
                 , String.fromFloat (roundTo a)
                 ]
 
-        Hsla h s l a ->
+        Hsla360 h s l a ->
             cssFunction "hsla"
                 [ String.fromFloat (roundTo h)
                 , String.fromFloat (pct s) ++ "%"
