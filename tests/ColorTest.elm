@@ -23,9 +23,9 @@ unit =
     floatRange 0 1
 
 
-int25500 : Fuzzer Int
-int25500 =
-    intRange 0 25500
+float255 : Fuzzer Float
+float255 =
+    intRange 0 25500 |> Fuzz.map (toFloat >> (\n -> n / 100))
 
 
 int36000 : Fuzzer Int
@@ -51,40 +51,40 @@ all =
                 in
                 color
                     |> Expect.equal color
-        , fuzz (pair (triple int25500 int25500 int25500) unit)
+        , fuzz (pair (triple float255 float255 float255) unit)
             "can represent RGBA colors (fromRgba)"
           <|
             \( ( r, g, b ), a ) ->
-                Color.fromRgba { red = toFloat r / 100, green = toFloat g / 100, blue = toFloat b / 100, alpha = a }
+                Color.fromRgba { red = r, green = g, blue = b, alpha = a }
                     |> Color.toRgba
                     |> Expect.all
-                        [ .red >> Expect.within guaranteedTolerance (toFloat r / 100)
-                        , .green >> Expect.within guaranteedTolerance (toFloat g / 100)
-                        , .blue >> Expect.within guaranteedTolerance (toFloat b / 100)
+                        [ .red >> Expect.within guaranteedTolerance r
+                        , .green >> Expect.within guaranteedTolerance g
+                        , .blue >> Expect.within guaranteedTolerance b
                         , .alpha >> Expect.within guaranteedTolerance a
                         ]
-        , fuzz (pair (triple int25500 int25500 int25500) unit)
+        , fuzz (pair (triple float255 float255 float255) unit)
             "can represent RGBA colors (rgba)"
           <|
             \( ( r, g, b ), a ) ->
-                Color.rgba (toFloat r / 100) (toFloat g / 100) (toFloat b / 100) a
+                Color.rgba r g b a
                     |> Color.toRgba
                     |> Expect.all
-                        [ .red >> Expect.within guaranteedTolerance (toFloat r / 100)
-                        , .green >> Expect.within guaranteedTolerance (toFloat g / 100)
-                        , .blue >> Expect.within guaranteedTolerance (toFloat b / 100)
+                        [ .red >> Expect.within guaranteedTolerance r
+                        , .green >> Expect.within guaranteedTolerance g
+                        , .blue >> Expect.within guaranteedTolerance b
                         , .alpha >> Expect.within guaranteedTolerance a
                         ]
-        , fuzz (triple int25500 int25500 int25500)
+        , fuzz (triple float255 float255 float255)
             "can represent RGBA colors (rgb)"
           <|
             \( r, g, b ) ->
-                Color.rgb (toFloat r / 100) (toFloat g / 100) (toFloat b / 100)
+                Color.rgb r g b
                     |> Color.toRgba
                     |> Expect.all
-                        [ .red >> Expect.within guaranteedTolerance (toFloat r / 100)
-                        , .green >> Expect.within guaranteedTolerance (toFloat g / 100)
-                        , .blue >> Expect.within guaranteedTolerance (toFloat b / 100)
+                        [ .red >> Expect.within guaranteedTolerance r
+                        , .green >> Expect.within guaranteedTolerance g
+                        , .blue >> Expect.within guaranteedTolerance b
                         , .alpha >> Expect.equal 1.0
                         ]
         , fuzz (pair (triple int36000 unit unit) unit)
@@ -168,20 +168,20 @@ all =
                         , .lightness >> Expect.within guaranteedTolerance l
                         , .alpha >> Expect.within guaranteedTolerance a
                         ]
-        , fuzz (pair (triple int25500 int25500 int25500) (intRange 0 1000))
+        , fuzz (pair (triple float255 float255 float255) (intRange 0 1000))
             "can convert to CSS rgba strings"
           <|
             \( ( r, g, b ), a ) ->
-                Color.rgba (toFloat r / 100) (toFloat g / 100) (toFloat b / 100) (toFloat a / 1000)
+                Color.rgba r g b (toFloat a / 1000)
                     |> Color.toCssString
                     |> Expect.equal
                         (String.concat
                             [ "rgba("
-                            , String.fromFloat (toFloat r / 100)
+                            , String.fromFloat r
                             , ","
-                            , String.fromFloat (toFloat g / 100)
+                            , String.fromFloat g
                             , ","
-                            , String.fromFloat (toFloat b / 100)
+                            , String.fromFloat b
                             , ","
                             , String.fromFloat (toFloat a / 1000)
                             , ")"
