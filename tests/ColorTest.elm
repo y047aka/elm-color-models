@@ -23,14 +23,37 @@ unit =
     floatRange 0 1
 
 
-float255 : Fuzzer Float
-float255 =
-    intRange 0 25500 |> Fuzz.map (toFloat >> (\n -> n / 100))
+rgbValues : Fuzzer ( Float, Float, Float )
+rgbValues =
+    let
+        float255 =
+            intRange 0 25500 |> Fuzz.map (toFloat >> (\n -> n / 100))
+    in
+    triple float255 float255 float255
 
 
-float360 : Fuzzer Float
-float360 =
-    intRange 0 36000 |> Fuzz.map (toFloat >> (\n -> n / 100))
+rgbaValues : Fuzzer a -> Fuzzer ( ( Float, Float, Float ), a )
+rgbaValues alpha =
+    pair rgbValues alpha
+
+
+hslValues : Fuzzer ( Float, Float, Float )
+hslValues =
+    let
+        float360 =
+            intRange 0 36000 |> Fuzz.map (toFloat >> (\n -> n / 100))
+    in
+    triple float360 unit unit
+
+
+hslaValues : Fuzzer ( ( Float, Float, Float ), Float )
+hslaValues =
+    pair hslValues opacityValue
+
+
+opacityValue : Fuzzer Float
+opacityValue =
+    floatRange 0 1
 
 
 
@@ -51,7 +74,7 @@ all =
                 in
                 color
                     |> Expect.equal color
-        , fuzz (pair (triple float255 float255 float255) unit)
+        , fuzz (rgbaValues opacityValue)
             "can represent RGBA colors (fromRgba)"
           <|
             \( ( r, g, b ), a ) ->
@@ -63,7 +86,7 @@ all =
                         , .blue >> Expect.within guaranteedTolerance b
                         , .alpha >> Expect.within guaranteedTolerance a
                         ]
-        , fuzz (pair (triple float255 float255 float255) unit)
+        , fuzz (rgbaValues opacityValue)
             "can represent RGBA colors (rgba)"
           <|
             \( ( r, g, b ), a ) ->
@@ -75,7 +98,7 @@ all =
                         , .blue >> Expect.within guaranteedTolerance b
                         , .alpha >> Expect.within guaranteedTolerance a
                         ]
-        , fuzz (triple float255 float255 float255)
+        , fuzz rgbValues
             "can represent RGBA colors (rgb)"
           <|
             \( r, g, b ) ->
@@ -87,7 +110,7 @@ all =
                         , .blue >> Expect.within guaranteedTolerance b
                         , .alpha >> Expect.equal 1.0
                         ]
-        , fuzz (pair (triple float360 unit unit) unit)
+        , fuzz hslaValues
             "can represent HSLA colors (fromHsla)"
           <|
             \( ( h, s, l ), a ) ->
@@ -114,7 +137,7 @@ all =
                         , .lightness >> Expect.within guaranteedTolerance l
                         , .alpha >> Expect.within guaranteedTolerance a
                         ]
-        , fuzz (triple float360 unit unit)
+        , fuzz hslValues
             "can represent HSLA colors (hsl)"
           <|
             \( h, s, l ) ->
@@ -141,7 +164,7 @@ all =
                         , .lightness >> Expect.within guaranteedTolerance l
                         , .alpha >> Expect.equal 1.0
                         ]
-        , fuzz (pair (triple float360 unit unit) unit)
+        , fuzz hslaValues
             "can represent HSLA colors (hsla)"
           <|
             \( ( h, s, l ), a ) ->
@@ -168,7 +191,7 @@ all =
                         , .lightness >> Expect.within guaranteedTolerance l
                         , .alpha >> Expect.within guaranteedTolerance a
                         ]
-        , fuzz (pair (triple float255 float255 float255) (intRange 0 1000))
+        , fuzz (rgbaValues (intRange 0 1000))
             "can convert to CSS rgba strings"
           <|
             \( ( r, g, b ), a ) ->
@@ -187,7 +210,7 @@ all =
                             , ")"
                             ]
                         )
-        , fuzz (pair (triple (intRange 0 100) (intRange 0 100) (intRange 0 100)) (intRange 0 1000))
+        , fuzz (pair (triple (intRange 0 360) (intRange 0 100) (intRange 0 100)) (intRange 0 1000))
             "can convert to CSS hsla strings"
           <|
             \( ( h, s, l ), a ) ->
