@@ -2,7 +2,7 @@ module ColorTest exposing (all)
 
 import Color exposing (Color)
 import CssHslReference
-import Expect exposing (FloatingPointTolerance(..))
+import Expect exposing (Expectation, FloatingPointTolerance(..))
 import Fuzz exposing (Fuzzer, floatRange, intRange, pair, triple)
 import Test exposing (..)
 
@@ -79,9 +79,7 @@ all =
                 Color.fromRgba { red = r, green = g, blue = b, alpha = a }
                     |> Color.toRgba
                     |> Expect.all
-                        [ .red >> Expect.within guaranteedTolerance r
-                        , .green >> Expect.within guaranteedTolerance g
-                        , .blue >> Expect.within guaranteedTolerance b
+                        [ (\{ red, green, blue } -> ( red, green, blue )) >> withinTriple guaranteedTolerance ( r, g, b )
                         , .alpha >> Expect.within guaranteedTolerance a
                         ]
         , fuzz (rgbaValues opacityValue) "can represent RGBA colors (rgba)" <|
@@ -89,9 +87,7 @@ all =
                 Color.rgba r g b a
                     |> Color.toRgba
                     |> Expect.all
-                        [ .red >> Expect.within guaranteedTolerance r
-                        , .green >> Expect.within guaranteedTolerance g
-                        , .blue >> Expect.within guaranteedTolerance b
+                        [ (\{ red, green, blue } -> ( red, green, blue )) >> withinTriple guaranteedTolerance ( r, g, b )
                         , .alpha >> Expect.within guaranteedTolerance a
                         ]
         , fuzz rgbValues "can represent RGBA colors (rgb)" <|
@@ -99,9 +95,7 @@ all =
                 Color.rgb r g b
                     |> Color.toRgba
                     |> Expect.all
-                        [ .red >> Expect.within guaranteedTolerance r
-                        , .green >> Expect.within guaranteedTolerance g
-                        , .blue >> Expect.within guaranteedTolerance b
+                        [ (\{ red, green, blue } -> ( red, green, blue )) >> withinTriple guaranteedTolerance ( r, g, b )
                         , .alpha >> Expect.equal 1.0
                         ]
         , fuzz hslaValues "can represent HSLA colors (fromHsla)" <|
@@ -221,12 +215,7 @@ all =
                     test (String.fromInt i ++ ": " ++ Debug.toString info) <|
                         \() ->
                             Color.hslToRgb (info.h * 360) info.s info.l
-                                |> (\( r, g, b ) -> { red = r / 255, green = g / 255, blue = b / 255 })
-                                |> Expect.all
-                                    [ .red >> Expect.within guaranteedTolerance info.r
-                                    , .green >> Expect.within guaranteedTolerance info.g
-                                    , .blue >> Expect.within guaranteedTolerance info.b
-                                    ]
+                                |> withinTriple guaranteedTolerance ( info.r * 255, info.g * 255, info.b * 255 )
 
                 testRgbToHsl i info =
                     test (String.fromInt i ++ ": " ++ Debug.toString info) <|
@@ -258,3 +247,13 @@ all =
                 List.indexedMap testRgbToHsl CssHslReference.all
             ]
         ]
+
+
+withinTriple : FloatingPointTolerance -> ( Float, Float, Float ) -> ( Float, Float, Float ) -> Expectation
+withinTriple tolerance lower ( upper_a, upper_b, upper_c ) =
+    lower
+        |> Expect.all
+            [ (\( a, _, _ ) -> a) >> Expect.within tolerance upper_a
+            , (\( _, b, _ ) -> b) >> Expect.within tolerance upper_b
+            , (\( _, _, c ) -> c) >> Expect.within tolerance upper_c
+            ]
