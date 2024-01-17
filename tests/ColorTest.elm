@@ -103,23 +103,12 @@ all =
                 Color.fromHsla { hue = h, saturation = s, lightness = l, alpha = a }
                     |> Color.toHsla
                     |> Expect.all
-                        [ \result ->
-                            if result.lightness == 1 || result.lightness == 0 || result.saturation == 0 then
-                                -- hue does not apply
-                                Expect.pass
+                        [ if (h / 360) > 1 then
+                            .hue >> Expect.within guaranteedTolerance (h - 360)
 
-                            else if (h / 360) > 1 then
-                                result.hue |> Expect.within guaranteedTolerance (h - 360)
-
-                            else
-                                result.hue |> Expect.within guaranteedTolerance h
-                        , \result ->
-                            if result.lightness == 1 || result.lightness == 0 then
-                                -- saturation does not apply
-                                Expect.pass
-
-                            else
-                                result.saturation |> Expect.within guaranteedTolerance s
+                          else
+                            .hue >> Expect.within guaranteedTolerance h
+                        , .saturation >> Expect.within guaranteedTolerance s
                         , .lightness >> Expect.within guaranteedTolerance l
                         , .alpha >> Expect.within guaranteedTolerance a
                         ]
@@ -128,23 +117,12 @@ all =
                 Color.hsl h s l
                     |> Color.toHsla
                     |> Expect.all
-                        [ \result ->
-                            if result.lightness == 1 || result.lightness == 0 || result.saturation == 0 then
-                                -- hue does not apply
-                                Expect.pass
+                        [ if (h / 360) > 1 then
+                            .hue >> Expect.within guaranteedTolerance (h - 360)
 
-                            else if (h / 360) > 1 then
-                                result.hue |> Expect.within guaranteedTolerance (h - 360)
-
-                            else
-                                result.hue |> Expect.within guaranteedTolerance h
-                        , \result ->
-                            if result.lightness == 1 || result.lightness == 0 then
-                                -- saturation does not apply
-                                Expect.pass
-
-                            else
-                                result.saturation |> Expect.within guaranteedTolerance s
+                          else
+                            .hue >> Expect.within guaranteedTolerance h
+                        , .saturation >> Expect.within guaranteedTolerance s
                         , .lightness >> Expect.within guaranteedTolerance l
                         , .alpha >> Expect.equal 1.0
                         ]
@@ -153,23 +131,12 @@ all =
                 Color.hsla h s l a
                     |> Color.toHsla
                     |> Expect.all
-                        [ \result ->
-                            if result.lightness == 1 || result.lightness == 0 || result.saturation == 0 then
-                                -- hue does not apply
-                                Expect.pass
+                        [ if (h / 360) > 1 then
+                            .hue >> Expect.within guaranteedTolerance (h - 360)
 
-                            else if (h / 360) > 1 then
-                                result.hue |> Expect.within guaranteedTolerance (h - 360)
-
-                            else
-                                result.hue |> Expect.within guaranteedTolerance h
-                        , \result ->
-                            if result.lightness == 1 || result.lightness == 0 then
-                                -- saturation does not apply
-                                Expect.pass
-
-                            else
-                                result.saturation |> Expect.within guaranteedTolerance s
+                          else
+                            .hue >> Expect.within guaranteedTolerance h
+                        , .saturation >> Expect.within guaranteedTolerance s
                         , .lightness >> Expect.within guaranteedTolerance l
                         , .alpha >> Expect.within guaranteedTolerance a
                         ]
