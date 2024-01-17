@@ -74,9 +74,7 @@ all =
                 in
                 color
                     |> Expect.equal color
-        , fuzz (rgbaValues opacityValue)
-            "can represent RGBA colors (fromRgba)"
-          <|
+        , fuzz (rgbaValues opacityValue) "can represent RGBA colors (fromRgba)" <|
             \( ( r, g, b ), a ) ->
                 Color.fromRgba { red = r, green = g, blue = b, alpha = a }
                     |> Color.toRgba
@@ -86,9 +84,7 @@ all =
                         , .blue >> Expect.within guaranteedTolerance b
                         , .alpha >> Expect.within guaranteedTolerance a
                         ]
-        , fuzz (rgbaValues opacityValue)
-            "can represent RGBA colors (rgba)"
-          <|
+        , fuzz (rgbaValues opacityValue) "can represent RGBA colors (rgba)" <|
             \( ( r, g, b ), a ) ->
                 Color.rgba r g b a
                     |> Color.toRgba
@@ -98,9 +94,7 @@ all =
                         , .blue >> Expect.within guaranteedTolerance b
                         , .alpha >> Expect.within guaranteedTolerance a
                         ]
-        , fuzz rgbValues
-            "can represent RGBA colors (rgb)"
-          <|
+        , fuzz rgbValues "can represent RGBA colors (rgb)" <|
             \( r, g, b ) ->
                 Color.rgb r g b
                     |> Color.toRgba
@@ -110,9 +104,7 @@ all =
                         , .blue >> Expect.within guaranteedTolerance b
                         , .alpha >> Expect.equal 1.0
                         ]
-        , fuzz hslaValues
-            "can represent HSLA colors (fromHsla)"
-          <|
+        , fuzz hslaValues "can represent HSLA colors (fromHsla)" <|
             \( ( h, s, l ), a ) ->
                 Color.fromHsla { hue = h, saturation = s, lightness = l, alpha = a }
                     |> Color.toHsla
@@ -137,9 +129,7 @@ all =
                         , .lightness >> Expect.within guaranteedTolerance l
                         , .alpha >> Expect.within guaranteedTolerance a
                         ]
-        , fuzz hslValues
-            "can represent HSLA colors (hsl)"
-          <|
+        , fuzz hslValues "can represent HSLA colors (hsl)" <|
             \( h, s, l ) ->
                 Color.hsl h s l
                     |> Color.toHsla
@@ -164,9 +154,7 @@ all =
                         , .lightness >> Expect.within guaranteedTolerance l
                         , .alpha >> Expect.equal 1.0
                         ]
-        , fuzz hslaValues
-            "can represent HSLA colors (hsla)"
-          <|
+        , fuzz hslaValues "can represent HSLA colors (hsla)" <|
             \( ( h, s, l ), a ) ->
                 Color.hsla h s l a
                     |> Color.toHsla
@@ -191,9 +179,7 @@ all =
                         , .lightness >> Expect.within guaranteedTolerance l
                         , .alpha >> Expect.within guaranteedTolerance a
                         ]
-        , fuzz (rgbaValues (intRange 0 1000))
-            "can convert to CSS rgba strings"
-          <|
+        , fuzz (rgbaValues (intRange 0 1000)) "can convert to CSS rgba strings" <|
             \( ( r, g, b ), a ) ->
                 Color.rgba r g b (toFloat a / 1000)
                     |> Color.toCssString
