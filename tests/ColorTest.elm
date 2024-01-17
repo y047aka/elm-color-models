@@ -102,44 +102,53 @@ all =
             \( ( h, s, l ), a ) ->
                 Color.fromHsla { hue = h, saturation = s, lightness = l, alpha = a }
                     |> Color.toHsla
-                    |> Expect.all
-                        [ if (h / 360) > 1 then
-                            .hue >> Expect.within guaranteedTolerance (h - 360)
+                    |> (let
+                            h_ =
+                                if (h / 360) > 1 then
+                                    h - 360
 
-                          else
-                            .hue >> Expect.within guaranteedTolerance h
-                        , .saturation >> Expect.within guaranteedTolerance s
-                        , .lightness >> Expect.within guaranteedTolerance l
-                        , .alpha >> Expect.within guaranteedTolerance a
-                        ]
+                                else
+                                    h
+                        in
+                        Expect.all
+                            [ (\{ hue, saturation, lightness } -> ( hue, saturation, lightness )) >> withinTriple guaranteedTolerance ( h_, s, l )
+                            , .alpha >> Expect.within guaranteedTolerance a
+                            ]
+                       )
         , fuzz hslValues "can represent HSLA colors (hsl)" <|
             \( h, s, l ) ->
                 Color.hsl h s l
                     |> Color.toHsla
-                    |> Expect.all
-                        [ if (h / 360) > 1 then
-                            .hue >> Expect.within guaranteedTolerance (h - 360)
+                    |> (let
+                            h_ =
+                                if (h / 360) > 1 then
+                                    h - 360
 
-                          else
-                            .hue >> Expect.within guaranteedTolerance h
-                        , .saturation >> Expect.within guaranteedTolerance s
-                        , .lightness >> Expect.within guaranteedTolerance l
-                        , .alpha >> Expect.equal 1.0
-                        ]
+                                else
+                                    h
+                        in
+                        Expect.all
+                            [ (\{ hue, saturation, lightness } -> ( hue, saturation, lightness )) >> withinTriple guaranteedTolerance ( h_, s, l )
+                            , .alpha >> Expect.equal 1.0
+                            ]
+                       )
         , fuzz hslaValues "can represent HSLA colors (hsla)" <|
             \( ( h, s, l ), a ) ->
                 Color.hsla h s l a
                     |> Color.toHsla
-                    |> Expect.all
-                        [ if (h / 360) > 1 then
-                            .hue >> Expect.within guaranteedTolerance (h - 360)
+                    |> (let
+                            h_ =
+                                if (h / 360) > 1 then
+                                    h - 360
 
-                          else
-                            .hue >> Expect.within guaranteedTolerance h
-                        , .saturation >> Expect.within guaranteedTolerance s
-                        , .lightness >> Expect.within guaranteedTolerance l
-                        , .alpha >> Expect.within guaranteedTolerance a
-                        ]
+                                else
+                                    h
+                        in
+                        Expect.all
+                            [ (\{ hue, saturation, lightness } -> ( hue, saturation, lightness )) >> withinTriple guaranteedTolerance ( h_, s, l )
+                            , .alpha >> Expect.within guaranteedTolerance a
+                            ]
+                       )
         , fuzz (rgbaValues (intRange 0 1000)) "can convert to CSS rgba strings" <|
             \( ( r, g, b ), a ) ->
                 Color.rgba r g b (toFloat a / 1000)
