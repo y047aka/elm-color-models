@@ -155,13 +155,13 @@ all =
                     |> Color.toCssString
                     |> Expect.equal
                         (String.concat
-                            [ "rgba("
+                            [ "rgb("
                             , String.fromFloat r
-                            , ","
+                            , " "
                             , String.fromFloat g
-                            , ","
+                            , " "
                             , String.fromFloat b
-                            , ","
+                            , " / "
                             , String.fromFloat (toFloat a / 1000)
                             , ")"
                             ]
@@ -174,13 +174,13 @@ all =
                     |> Color.toCssString
                     |> Expect.equal
                         (String.concat
-                            [ "hsla("
+                            [ "hsl("
                             , String.fromFloat (toFloat h / 100)
-                            , ","
+                            , " "
                             , String.fromFloat (toFloat s)
-                            , "%,"
+                            , "% "
                             , String.fromFloat (toFloat l)
-                            , "%,"
+                            , "% / "
                             , String.fromFloat (toFloat a / 1000)
                             , ")"
                             ]

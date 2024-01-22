@@ -208,40 +208,37 @@ toCssString c =
             ((x * 1000) |> round |> toFloat) / 1000
     in
     case c of
-        Rgba255 r g b (Just alpha) ->
-            cssFunction "rgba"
-                [ String.fromFloat (roundTo r)
-                , String.fromFloat (roundTo g)
-                , String.fromFloat (roundTo b)
-                , String.fromFloat (roundTo alpha)
-                ]
+        Rgba255 r g b alpha ->
+            cssColorLevel4 "rgb"
+                ( [ String.fromFloat (roundTo r)
+                  , String.fromFloat (roundTo g)
+                  , String.fromFloat (roundTo b)
+                  ]
+                , Maybe.map (roundTo >> String.fromFloat) alpha
+                )
 
-        Rgba255 r g b Nothing ->
-            cssFunction "rgb"
-                [ String.fromFloat (roundTo r)
-                , String.fromFloat (roundTo g)
-                , String.fromFloat (roundTo b)
-                ]
-
-        Hsla360 h s l (Just alpha) ->
-            cssFunction "hsla"
-                [ String.fromFloat (roundTo h)
-                , String.fromFloat (pct s) ++ "%"
-                , String.fromFloat (pct l) ++ "%"
-                , String.fromFloat (roundTo alpha)
-                ]
-
-        Hsla360 h s l Nothing ->
-            cssFunction "hsl"
-                [ String.fromFloat (roundTo h)
-                , String.fromFloat (pct s) ++ "%"
-                , String.fromFloat (pct l) ++ "%"
-                ]
+        Hsla360 h s l alpha ->
+            cssColorLevel4 "hsl"
+                ( [ String.fromFloat (roundTo h)
+                  , String.fromFloat (pct s) ++ "%"
+                  , String.fromFloat (pct l) ++ "%"
+                  ]
+                , Maybe.map (roundTo >> String.fromFloat) alpha
+                )
 
 
-cssFunction : String -> List String -> String
-cssFunction funcName args =
+cssColorLevel4 : String -> ( List String, Maybe String ) -> String
+cssColorLevel4 funcName ( args, maybeAlpha ) =
+    let
+        slashAndAplha =
+            case maybeAlpha of
+                Just a ->
+                    [ "/", a ]
+
+                Nothing ->
+                    []
+    in
     funcName
         ++ "("
-        ++ String.join "," args
+        ++ String.join " " (args ++ slashAndAplha)
         ++ ")"
