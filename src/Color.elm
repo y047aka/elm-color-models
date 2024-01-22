@@ -45,66 +45,66 @@ module Color exposing
 {-| Represents a color.
 -}
 type Color
-    = Rgba255 Float Float Float Float
-    | Hsla360 Float Float Float Float
+    = Rgba255 Float Float Float (Maybe Float)
+    | Hsla360 Float Float Float (Maybe Float)
 
 
 fromRgba : { red : Float, green : Float, blue : Float, alpha : Float } -> Color
 fromRgba components =
-    Rgba255 components.red components.green components.blue components.alpha
+    Rgba255 components.red components.green components.blue (Just components.alpha)
 
 
 rgba : Float -> Float -> Float -> Float -> Color
-rgba r g b a =
-    Rgba255 r g b a
+rgba r g b alpha =
+    Rgba255 r g b (Just alpha)
 
 
 rgb : Float -> Float -> Float -> Color
 rgb r g b =
-    Rgba255 r g b 1.0
+    Rgba255 r g b Nothing
 
 
 fromHsla : { hue : Float, saturation : Float, lightness : Float, alpha : Float } -> Color
 fromHsla { hue, saturation, lightness, alpha } =
-    Hsla360 hue saturation lightness alpha
+    Hsla360 hue saturation lightness (Just alpha)
 
 
 hsla : Float -> Float -> Float -> Float -> Color
 hsla hue sat light alpha =
-    Hsla360 hue sat light alpha
+    Hsla360 hue sat light (Just alpha)
 
 
 hsl : Float -> Float -> Float -> Color
 hsl h s l =
-    hsla h s l 1.0
+    Hsla360 h s l Nothing
 
 
 toRgba : Color -> { red : Float, green : Float, blue : Float, alpha : Float }
 toRgba c =
     case c of
-        Rgba255 r g b a ->
-            { red = r, green = g, blue = b, alpha = a }
+        Rgba255 r g b alpha ->
+            { red = r, green = g, blue = b, alpha = Maybe.withDefault 1 alpha }
 
-        Hsla360 h s l a ->
+        Hsla360 h s l alpha ->
             let
                 ( red, green, blue ) =
                     hslToRgb h s l
             in
-            { red = red, green = green, blue = blue, alpha = a }
+            { red = red, green = green, blue = blue, alpha = Maybe.withDefault 1 alpha }
 
 
 toHsla : Color -> { hue : Float, saturation : Float, lightness : Float, alpha : Float }
 toHsla c =
     case c of
-        Rgba255 r g b a ->
+        Rgba255 r g b alpha ->
             let
                 ( hue, saturation, lightness ) =
                     rgbToHsl r g b
             in
-            { hue = hue, saturation = saturation, lightness = lightness, alpha = a }
+            { hue = hue, saturation = saturation, lightness = lightness, alpha = Maybe.withDefault 1 alpha }
 
-        Hsla360 h s l a ->
-            { hue = h, saturation = s, lightness = l, alpha = a }
+        Hsla360 h s l alpha ->
+            { hue = h, saturation = s, lightness = l, alpha = Maybe.withDefault 1 alpha }
 
 
 rgbToHsl : Float -> Float -> Float -> ( Float, Float, Float )
@@ -208,20 +208,34 @@ toCssString c =
             ((x * 1000) |> round |> toFloat) / 1000
     in
     case c of
-        Rgba255 r g b a ->
+        Rgba255 r g b (Just alpha) ->
             cssFunction "rgba"
                 [ String.fromFloat (roundTo r)
                 , String.fromFloat (roundTo g)
                 , String.fromFloat (roundTo b)
-                , String.fromFloat (roundTo a)
+                , String.fromFloat (roundTo alpha)
                 ]
 
-        Hsla360 h s l a ->
+        Rgba255 r g b Nothing ->
+            cssFunction "rgb"
+                [ String.fromFloat (roundTo r)
+                , String.fromFloat (roundTo g)
+                , String.fromFloat (roundTo b)
+                ]
+
+        Hsla360 h s l (Just alpha) ->
             cssFunction "hsla"
                 [ String.fromFloat (roundTo h)
                 , String.fromFloat (pct s) ++ "%"
                 , String.fromFloat (pct l) ++ "%"
-                , String.fromFloat (roundTo a)
+                , String.fromFloat (roundTo alpha)
+                ]
+
+        Hsla360 h s l Nothing ->
+            cssFunction "hsl"
+                [ String.fromFloat (roundTo h)
+                , String.fromFloat (pct s) ++ "%"
+                , String.fromFloat (pct l) ++ "%"
                 ]
 
 
