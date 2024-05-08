@@ -1,6 +1,6 @@
 module Color exposing
     ( Color
-    , rgb, rgba, hsl, hsla
+    , rgba, hsla
     , fromRgba, fromHsla
     , toCssString
     , toRgba, toHsla
@@ -59,11 +59,6 @@ rgba r g b alpha =
     Rgba255 r g b alpha
 
 
-rgb : Float -> Float -> Float -> Color
-rgb r g b =
-    Rgba255 r g b 1
-
-
 fromHsla : { hue : Float, saturation : Float, lightness : Float, alpha : Float } -> Color
 fromHsla { hue, saturation, lightness, alpha } =
     Hsla360 hue saturation lightness alpha
@@ -72,11 +67,6 @@ fromHsla { hue, saturation, lightness, alpha } =
 hsla : Float -> Float -> Float -> Float -> Color
 hsla hue sat light alpha =
     Hsla360 hue sat light alpha
-
-
-hsl : Float -> Float -> Float -> Color
-hsl h s l =
-    Hsla360 h s l 1
 
 
 toRgba : Color -> { red : Float, green : Float, blue : Float, alpha : Float }
