@@ -17,7 +17,7 @@ module Color exposing
 
 ## From numbers
 
-@docs rgb, rgba, hsl, hsla
+@docs rgba, hsla
 
 
 ## From records
@@ -50,8 +50,8 @@ type Color
 
 
 fromRgba : { red : Float, green : Float, blue : Float, alpha : Float } -> Color
-fromRgba components =
-    Rgba255 components.red components.green components.blue components.alpha
+fromRgba { red, green, blue, alpha } =
+    Rgba255 red green blue alpha
 
 
 rgba : Float -> Float -> Float -> Float -> Color

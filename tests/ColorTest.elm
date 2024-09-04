@@ -90,14 +90,6 @@ all =
                         [ (\{ red, green, blue } -> ( red, green, blue )) >> withinTriple guaranteedTolerance ( r, g, b )
                         , .alpha >> Expect.within guaranteedTolerance a
                         ]
-        , fuzz rgbValues "can represent RGBA colors (rgb)" <|
-            \( r, g, b ) ->
-                Color.rgb r g b
-                    |> Color.toRgba
-                    |> Expect.all
-                        [ (\{ red, green, blue } -> ( red, green, blue )) >> withinTriple guaranteedTolerance ( r, g, b )
-                        , .alpha >> Expect.equal 1.0
-                        ]
         , fuzz hslaValues "can represent HSLA colors (fromHsla)" <|
             \( ( h, s, l ), a ) ->
                 Color.fromHsla { hue = h, saturation = s, lightness = l, alpha = a }
@@ -113,23 +105,6 @@ all =
                         Expect.all
                             [ (\{ hue, saturation, lightness } -> ( hue, saturation, lightness )) >> withinTriple guaranteedTolerance ( h_, s, l )
                             , .alpha >> Expect.within guaranteedTolerance a
-                            ]
-                       )
-        , fuzz hslValues "can represent HSLA colors (hsl)" <|
-            \( h, s, l ) ->
-                Color.hsl h s l
-                    |> Color.toHsla
-                    |> (let
-                            h_ =
-                                if (h / 360) > 1 then
-                                    h - 360
-
-                                else
-                                    h
-                        in
-                        Expect.all
-                            [ (\{ hue, saturation, lightness } -> ( hue, saturation, lightness )) >> withinTriple guaranteedTolerance ( h_, s, l )
-                            , .alpha >> Expect.equal 1.0
                             ]
                        )
         , fuzz hslaValues "can represent HSLA colors (hsla)" <|
