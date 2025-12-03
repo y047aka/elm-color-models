@@ -1,5 +1,5 @@
 # Dependency directory
-node_modules
+.direnv/
 
 # Elm Dependency directory
 elm-stuff
